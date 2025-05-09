@@ -38,9 +38,9 @@ class BookDAOIT(
                 """
                insert into book (title, author)
                values 
-                   ('Hamlet', 'Shakespeare'),
-                   ('Les fleurs du mal', 'Beaudelaire'),
-                   ('Harry Potter', 'Rowling');
+                   ('Hamlet', 'Shakespeare', false),
+                   ('Les fleurs du mal', 'Beaudelaire', false),
+                   ('Harry Potter', 'Rowling', false);
             """.trimIndent()
             )
 
@@ -49,14 +49,14 @@ class BookDAOIT(
 
             // THEN
             res.shouldContainExactlyInAnyOrder(
-                Book("Hamlet", "Shakespeare"), Book("Les fleurs du mal", "Beaudelaire"), Book("Harry Potter", "Rowling")
+                Book("Hamlet", "Shakespeare", false), Book("Les fleurs du mal", "Beaudelaire", false), Book("Harry Potter", "Rowling", false)
             )
         }
 
         test("create book in db") {
             // GIVEN
             // WHEN
-            bookDAO.createBook(Book("Les misérables", "Victor Hugo"))
+            bookDAO.createBook(Book("Les misérables", "Victor Hugo", false ))
 
             // THEN
             val res = performQuery(
@@ -69,8 +69,38 @@ class BookDAOIT(
                 this["id"].shouldNotBeNull().shouldBeInstanceOf<Int>()
                 this["title"].shouldBe("Les misérables")
                 this["author"].shouldBe("Victor Hugo")
+                this["reserved"].shouldBe(false)
             }
         }
+
+        test("reserve book") {
+            // GIVEN
+            performQuery(
+                // language=sql
+                """
+                insert into book (title, author)
+                values ('Les misérables', 'Victor Hugo');
+            """.trimIndent()
+            )
+
+            // WHEN
+            bookDAO.reserveBook(Book("Les misérables", "Victor Hugo", false))
+
+            // THEN 
+            val res = performQuery(
+                // language=sql
+                "SELECT * from book"
+            )
+
+            res shouldHaveSize 1
+            assertSoftly(res.first()) {
+                this["id"].shouldNotBeNull().shouldBeInstanceOf<Int>()
+                this["title"].shouldBe("Les misérables")
+                this["author"].shouldBe("Victor Hugo")
+                this["reserved"].shouldBe(true)
+            }
+        }
+        
 
         afterSpec {
             container.stop()

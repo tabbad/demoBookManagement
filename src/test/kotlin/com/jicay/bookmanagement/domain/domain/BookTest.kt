@@ -7,11 +7,11 @@ import io.kotest.core.spec.style.FunSpec
 class BookTest : FunSpec({
 
     test("name should not be empty") {
-        shouldThrow<IllegalArgumentException> { Book("", "Victor Hugo") }
+        shouldThrow<IllegalArgumentException> { Book("", "Victor Hugo", false) }
     }
 
     test("author should not be empty") {
-        shouldThrow<IllegalArgumentException> { Book("Les Misérables", "") }
+        shouldThrow<IllegalArgumentException> { Book("Les Misérables", "", false) }
     }
 
 })

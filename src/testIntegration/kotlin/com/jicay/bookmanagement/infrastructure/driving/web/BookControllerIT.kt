@@ -13,6 +13,8 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.patch
+
 
 @WebMvcTest
 class BookControllerIT(
@@ -23,7 +25,7 @@ class BookControllerIT(
 
     test("rest route get books") {
         // GIVEN
-        every { bookUseCase.getAllBooks() } returns listOf(Book("A", "B"))
+        every { bookUseCase.getAllBooks() } returns listOf(Book("A", "B", false))
 
         // WHEN
         mockMvc.get("/books")
@@ -38,7 +40,8 @@ class BookControllerIT(
                         [
                           {
                             "name": "A",
-                            "author": "B"
+                            "author": "B",
+                            "reserved": false
                           }
                         ]
                         """.trimIndent()
@@ -55,7 +58,8 @@ class BookControllerIT(
             content = """
                 {
                   "name": "Les misérables",
-                  "author": "Victor Hugo"
+                  "author": "Victor Hugo",
+                  "reserved": false
                 }
             """.trimIndent()
             contentType = APPLICATION_JSON
@@ -66,10 +70,38 @@ class BookControllerIT(
 
         val expected = Book(
             name = "Les misérables",
-            author = "Victor Hugo"
+            author = "Victor Hugo",
+            reserved = false
         )
 
         verify(exactly = 1) { bookUseCase.addBook(expected) }
+    }
+
+    test("rest route patch book") {
+        justRun { bookUseCase.reserveBook(any()) }
+
+        mockMvc.patch("/books") {
+            // language=json
+            content = """
+                {
+                  "name": "Les misérables",
+                  "author": "Victor Hugo",
+                  "reserved": false
+                }
+            """.trimIndent()
+            contentType = APPLICATION_JSON
+            accept = APPLICATION_JSON
+        }.andExpect {
+            status { isOk() }
+        }
+
+        val expected = Book(
+            name = "Les misérables",
+            author = "Victor Hugo",
+            reserved = true
+        )
+
+        verify(exactly = 1) { bookUseCase.reserveBook(expected) }
     }
 
     test("rest route post book should return 400 when body is not good") {
@@ -80,7 +112,8 @@ class BookControllerIT(
             content = """
                 {
                   "title": "Les misérables",
-                  "author": "Victor Hugo"
+                  "author": "Victor Hugo",
+                  "reserved": false
                 }
             """.trimIndent()
             contentType = APPLICATION_JSON

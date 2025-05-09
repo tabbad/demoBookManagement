@@ -15,4 +15,10 @@ class BookUseCase(
     fun addBook(book: Book) {
         bookPort.createBook(book)
     }
+    fun reserveBook(book: Book) {
+        if (book.reserved) {
+            throw IllegalStateException("Book is already reserved")
+        }
+        bookPort.reserveBook(book)
+    }
 }
