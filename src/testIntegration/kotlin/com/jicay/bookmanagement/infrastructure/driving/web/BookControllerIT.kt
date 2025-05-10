@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.patch
-
+import io.kotest.matchers.shouldBe
 
 @WebMvcTest
 class BookControllerIT(
@@ -98,7 +98,7 @@ class BookControllerIT(
         val expected = Book(
             name = "Les misérables",
             author = "Victor Hugo",
-            reserved = true
+            reserved = false
         )
 
         verify(exactly = 1) { bookUseCase.reserveBook(expected) }
@@ -123,5 +123,23 @@ class BookControllerIT(
         }
 
         verify(exactly = 0) { bookUseCase.addBook(any()) }
+    }
+
+    test("rest route patch book should return 400 when book is already reserved") {
+        every { bookUseCase.reserveBook(any()) } throws IllegalStateException("Book is already reserved")
+    
+        mockMvc.patch("/books") {
+            content = """
+                {
+                  "name": "Les misérables",
+                  "author": "Victor Hugo",
+                  "reserved": true
+                }
+            """.trimIndent()
+            contentType = APPLICATION_JSON
+            accept = APPLICATION_JSON
+        }.andExpect {
+            status { isBadRequest() }
+        }
     }
 })

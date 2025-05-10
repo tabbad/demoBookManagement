@@ -36,7 +36,7 @@ class BookDAOIT(
             performQuery(
                 // language=sql
                 """
-               insert into book (title, author)
+               insert into book (title, author, reserved)
                values 
                    ('Hamlet', 'Shakespeare', false),
                    ('Les fleurs du mal', 'Beaudelaire', false),
@@ -78,8 +78,8 @@ class BookDAOIT(
             performQuery(
                 // language=sql
                 """
-                insert into book (title, author)
-                values ('Les misérables', 'Victor Hugo');
+                insert into book (title, author, reserved)
+                values ('Les misérables', 'Victor Hugo', false);
             """.trimIndent()
             )
 
