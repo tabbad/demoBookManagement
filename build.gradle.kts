@@ -58,14 +58,14 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-common:2.1.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
 
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk:1.13.9")
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testImplementation("io.kotest:kotest-property:5.9.1")
     testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.15.0")
     testImplementation("io.kotest.extensions:kotest-extensions-pitest:1.2.0")
 
-    testIntegrationImplementation("io.mockk:mockk:1.13.8")
+    testIntegrationImplementation("io.mockk:mockk:1.13.9")
     testIntegrationImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testIntegrationImplementation("io.kotest:kotest-runner-junit5:5.9.1")
     testIntegrationImplementation("com.ninja-squad:springmockk:4.0.2")
@@ -92,6 +92,16 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
 
 tasks.register<JacocoReport>("jacocoFullReport") {

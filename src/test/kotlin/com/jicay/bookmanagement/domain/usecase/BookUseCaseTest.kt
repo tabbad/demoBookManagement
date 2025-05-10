@@ -4,6 +4,8 @@ import com.jicay.bookmanagement.domain.model.Book
 import com.jicay.bookmanagement.domain.port.BookPort
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -39,12 +41,25 @@ class BookUseCaseTest : FunSpec({
     }
 
     test("reserve book") {
-        justRun { bookPort.reserveBook(any()) }
-
         val book = Book("Les Misérables", "Victor Hugo", false)
+        
+        every { bookPort.reserveBook(any()) } answers {
+            val bookToReserve = firstArg<Book>()
+            bookToReserve.reserved = true
+        }
 
         bookUseCase.reserveBook(book)
-                
+
+        verify(exactly = 1) { bookPort.reserveBook(book) }
+        book.reserved shouldBe true
+    }
+
+    test("should throw exception when trying to reserve an already reserved book") {
+        val book = Book("Les Misérables", "Victor Hugo", true)
+        
+        shouldThrow<IllegalStateException> {
+            bookUseCase.reserveBook(book)
+        }
     }
 
 })
