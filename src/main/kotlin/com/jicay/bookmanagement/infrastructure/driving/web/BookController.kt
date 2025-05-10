@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.ExceptionHandler
 
 @RestController
 @RequestMapping("/books")
@@ -37,5 +38,11 @@ class BookController(
     @ResponseStatus(HttpStatus.OK)
     fun reserveBook(@RequestBody bookDTO: BookDTO) {
         bookUseCase.reserveBook(bookDTO.toDomain())
+    }
+
+    @ExceptionHandler(IllegalStateException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleIllegalStateException(e: IllegalStateException) {
+        // Optionnel : log ou retourner un message
     }
 }
